@@ -37,8 +37,25 @@ app.put("/repositories/:id", (request, response) => {
 
   const {title, url, techs} = request.body;
 
+  const {likes} = request.body;
+
   const projectIndex = repositories.findIndex(repository => repository.id === id);
 
+  if (projectIndex < 0) {
+    return response.status(400).json({error: 'Project not found!'})
+  } 
+
+  if(likes !== null) {
+    const project = {
+      id,
+      title,
+      url,
+      techs,
+      likes: 0
+    }
+    repositories[projectIndex] = project;
+    return response.json(project)
+  }
   const project = {
     id,
     title,
@@ -56,6 +73,10 @@ app.delete("/repositories/:id", (request, response) => {
 
   const projectIndex = repositories.findIndex(repository => repository.id === id);
 
+  if(projectIndex < 0) {
+    return response.status(400).json({error: 'Internal Server Error'})
+  }
+
   repositories.splice(projectIndex, 1);
 
   return response.status(204).send();
@@ -65,6 +86,10 @@ app.post("/repositories/:id/like", (request, response) => {
   const {id} = request.params;
   
   const projectIndex = repositories.findIndex(repository => repository.id === id );
+
+  if(projectIndex < 0) {
+    return response.status(400).json({error: 'Bad Request'})
+  }
 
   const changeLikes = {
     id,
