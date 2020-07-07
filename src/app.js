@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 
-// const { uuid } = require("uuidv4");
+const { uuid } = require("uuidv4");
 
 const app = express();
 
@@ -11,23 +11,78 @@ app.use(cors());
 const repositories = [];
 
 app.get("/repositories", (request, response) => {
-  // TODO
+
+  const {title} = request.query;
+
+  const results = title 
+    ? repositories.filter(projects => projects.title.includes(title))
+    : repositories
+  return response.json(results)
 });
 
 app.post("/repositories", (request, response) => {
-  // TODO
+  const { title, url, techs } = request.body;
+
+  const project = {
+    id: uuid(), 
+    title, 
+    url, 
+    techs, 
+    likes: 0
+  }
+
+  repositories.push(project);
+
+  return response.json(project)
 });
 
 app.put("/repositories/:id", (request, response) => {
-  // TODO
+  
+  const {id} = request.params;
+
+  const {title, url, techs} = request.body;
+
+  const projectIndex = repositories.findIndex(repository => repository.id === id);
+
+  const project = {
+    id,
+    title,
+    url,
+    techs
+  }
+
+  repositories[projectIndex] = project;
+
+  return response.json(project);
 });
 
 app.delete("/repositories/:id", (request, response) => {
-  // TODO
+  const {id} = request.params;
+
+  const projectIndex = repositories.findIndex(repository => repository.id === id);
+
+  repositories.splice(projectIndex, 1);
+
+  return response.status(204).send();
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  // TODO
+  const {id} = request.params;
+  
+  const projectIndex = repositories.findIndex(repository => repository.id === id );
+
+  const changeLikes = {
+    id,
+    title: repositories[projectIndex].title,
+    url: repositories[projectIndex].url,
+    techs: repositories[projectIndex].techs,
+    likes: repositories[projectIndex].likes + 1
+  }
+
+  repositories[projectIndex] = changeLikes;
+
+  return response.json(changeLikes)
+
 });
 
 module.exports = app;
